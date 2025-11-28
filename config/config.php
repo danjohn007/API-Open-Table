@@ -36,7 +36,8 @@ define('DB_CHARSET', 'utf8mb4');
 // Configuración de la aplicación
 define('APP_NAME', 'Sistema de Reservaciones');
 define('APP_VERSION', '1.0.0');
-define('APP_DEBUG', true);
+// IMPORTANTE: Cambiar a false en producción
+define('APP_DEBUG', getenv('APP_DEBUG') !== false ? getenv('APP_DEBUG') === 'true' : true);
 
 // Configuración de zona horaria
 date_default_timezone_set('America/Mexico_City');

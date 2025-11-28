@@ -57,6 +57,8 @@
     </div>
 </div>
 
+<?php if (APP_DEBUG): ?>
 <div class="mt-4 text-center text-gray-500 text-sm">
-    <p>Credenciales de prueba: <strong>admin</strong> / <strong>password</strong></p>
+    <p>Modo desarrollo - ver README.md para credenciales</p>
 </div>
+<?php endif; ?>

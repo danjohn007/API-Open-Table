@@ -122,7 +122,8 @@ abstract class Controller {
      */
     protected function validateCsrf() {
         $token = $this->getPost('csrf_token') ?? $this->getHeader('X-CSRF-Token');
-        if (!$token || $token !== ($_SESSION['csrf_token'] ?? '')) {
+        $sessionToken = $_SESSION['csrf_token'] ?? '';
+        if (!$token || !hash_equals($sessionToken, $token)) {
             $this->json(['error' => 'Token CSRF inválido'], 403);
         }
     }

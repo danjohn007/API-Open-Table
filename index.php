@@ -101,17 +101,22 @@ $url = $_GET['url'] ?? '';
 try {
     $router->dispatch($url);
 } catch (Exception $e) {
-    // Manejar errores
+    // Manejar errores - nunca exponer información sensible del sistema
     if (APP_DEBUG) {
-        echo '<h1>Error</h1>';
-        echo '<p>' . $e->getMessage() . '</p>';
-        echo '<pre>' . $e->getTraceAsString() . '</pre>';
+        // En desarrollo, mostrar detalles pero sanitizados
+        http_response_code($e->getCode() === 404 ? 404 : 500);
+        echo '<h1>Error de Desarrollo</h1>';
+        echo '<p>' . htmlspecialchars($e->getMessage()) . '</p>';
+        // Solo mostrar nombre de archivo, no rutas completas
+        echo '<pre>' . htmlspecialchars(preg_replace('/\/.*\//', '.../', $e->getTraceAsString())) . '</pre>';
     } else {
         if ($e->getCode() === 404) {
             http_response_code(404);
             include APP_PATH . '/views/errors/404.php';
         } else {
             http_response_code(500);
+            // Registrar error en log
+            error_log('Error: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine());
             include APP_PATH . '/views/errors/500.php';
         }
     }

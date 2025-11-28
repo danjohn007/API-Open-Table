@@ -290,8 +290,7 @@ async function cancelReservation(reason) {
 }
 
 function showAssignModal() {
-    // Implementar modal de asignación de mesa
-    alert('Funcionalidad de asignación de mesa - Ir a editar reservación');
+    // Redirigir a edición para asignar mesa
     location.href = BASE_URL + '/admin/reservations/' + reservationId + '/edit';
 }
 </script>
