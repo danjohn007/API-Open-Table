@@ -1,0 +1,35 @@
+# Logs
+logs/*.log
+
+# Uploads (keep directory but ignore contents)
+public/uploads/*
+!public/uploads/.gitkeep
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE/Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.settings/
+.buildpath
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Composer (if used later)
+vendor/
+
+# Node modules (if used later)
+node_modules/
+
+# Cache
+*.cache
+.php_cs.cache
