@@ -55,7 +55,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Nueva Contraseña</label>
-                    <input type="password" name="new_password" minlength="6"
+                    <input type="password" name="new_password" minlength="6" autocomplete="new-password"
                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
                 </div>
             </div>

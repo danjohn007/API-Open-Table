@@ -138,8 +138,11 @@ class AuthController extends Controller {
                 'phone' => $this->getPost('phone')
             ];
             
-            // Check if email is being changed and if it already exists
-            if ($data['email'] !== $user['email'] && $this->userModel->emailExists($data['email'])) {
+            // Validate email format
+            if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+                $error = 'El formato del correo electrónico no es válido';
+            } elseif ($data['email'] !== $user['email'] && $this->userModel->emailExists($data['email'])) {
+                // Check if email is being changed and if it already exists
                 $error = 'El correo electrónico ya está registrado';
             } else {
                 // Update password if provided
@@ -153,11 +156,15 @@ class AuthController extends Controller {
                 }
                 
                 if (!$error) {
-                    $this->userModel->update($_SESSION['user_id'], $data);
-                    $_SESSION['user_name'] = $data['first_name'] . ' ' . $data['last_name'];
-                    $_SESSION['user_email'] = $data['email'];
-                    $success = 'Perfil actualizado exitosamente';
-                    $user = $this->userModel->find($_SESSION['user_id']);
+                    $result = $this->userModel->update($_SESSION['user_id'], $data);
+                    if ($result) {
+                        $_SESSION['user_name'] = $data['first_name'] . ' ' . $data['last_name'];
+                        $_SESSION['user_email'] = $data['email'];
+                        $success = 'Perfil actualizado exitosamente';
+                        $user = $this->userModel->find($_SESSION['user_id']);
+                    } else {
+                        $error = 'Error al actualizar el perfil';
+                    }
                 }
             }
         }
