@@ -42,4 +42,18 @@ class HomeController extends Controller {
             'schedules' => $schedules
         ], 'client');
     }
+    
+    /**
+     * Página de términos y condiciones
+     */
+    public function terms() {
+        $settingModel = new SettingModel();
+        $settings = $settingModel->getAllAsArray();
+        
+        $this->render('client/terms', [
+            'terms' => $settings['terms_and_conditions'] ?? '',
+            'privacy' => $settings['privacy_policy'] ?? '',
+            'cancellation' => $settings['cancellation_policy'] ?? ''
+        ], 'client');
+    }
 }

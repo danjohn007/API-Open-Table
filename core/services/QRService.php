@@ -63,7 +63,15 @@ class QRService {
         
         $targetDir = UPLOADS_PATH . '/qrcodes';
         if (!is_dir($targetDir)) {
-            mkdir($targetDir, 0755, true);
+            if (!@mkdir($targetDir, 0755, true)) {
+                error_log('QRService: Failed to create directory ' . $targetDir);
+                return false;
+            }
+        }
+        
+        if (!is_writable($targetDir)) {
+            error_log('QRService: Directory not writable ' . $targetDir);
+            return false;
         }
         
         $filepath = $targetDir . '/' . $filename;

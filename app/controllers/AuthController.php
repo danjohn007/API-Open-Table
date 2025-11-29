@@ -219,7 +219,15 @@ class AuthController extends Controller {
         
         $targetDir = UPLOADS_PATH . '/avatars';
         if (!is_dir($targetDir)) {
-            mkdir($targetDir, 0755, true);
+            if (!@mkdir($targetDir, 0755, true)) {
+                error_log('AuthController: Failed to create avatars directory ' . $targetDir);
+                return null;
+            }
+        }
+        
+        if (!is_writable($targetDir)) {
+            error_log('AuthController: Avatars directory not writable ' . $targetDir);
+            return null;
         }
         
         $extension = pathinfo($file['name'], PATHINFO_EXTENSION);

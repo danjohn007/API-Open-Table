@@ -118,18 +118,27 @@ class EmailService {
             $greeting = fgets($socket, 515);
             
             // EHLO
-            fputs($socket, "EHLO " . $_SERVER['SERVER_NAME'] . "\r\n");
+            fputs($socket, "EHLO " . ($_SERVER['SERVER_NAME'] ?? 'localhost') . "\r\n");
             $this->getSmtpResponse($socket);
             
             // STARTTLS
             fputs($socket, "STARTTLS\r\n");
-            $this->getSmtpResponse($socket);
+            $starttlsResponse = $this->getSmtpResponse($socket);
             
-            stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT);
-            
-            // EHLO de nuevo
-            fputs($socket, "EHLO " . $_SERVER['SERVER_NAME'] . "\r\n");
-            $this->getSmtpResponse($socket);
+            if (strpos($starttlsResponse, '220') !== false) {
+                $cryptoEnabled = @stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT);
+                
+                if (!$cryptoEnabled) {
+                    fclose($socket);
+                    error_log("Error SMTP: No se pudo establecer conexión TLS segura");
+                    // Fallback a mail() nativo
+                    return mail($to, $subject, $body, implode("\r\n", $headers));
+                }
+                
+                // EHLO de nuevo después de TLS
+                fputs($socket, "EHLO " . ($_SERVER['SERVER_NAME'] ?? 'localhost') . "\r\n");
+                $this->getSmtpResponse($socket);
+            }
         }
         
         // AUTH LOGIN

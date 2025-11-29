@@ -91,7 +91,7 @@
                 <input type="checkbox" name="accept_terms" id="accept_terms" required
                        class="rounded border-gray-300 text-primary focus:ring-primary mt-1">
                 <span class="ml-2 text-sm text-gray-600">
-                    Acepto los <a href="<?= BASE_URL ?>/admin/settings/policies" target="_blank" class="text-primary hover:text-secondary">Términos y Condiciones</a> y la Política de Privacidad
+                    Acepto los <a href="<?= BASE_URL ?>/terminos" target="_blank" class="text-primary hover:text-secondary">Términos y Condiciones</a> y la Política de Privacidad
                 </span>
             </label>
         </div>

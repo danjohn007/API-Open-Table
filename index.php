@@ -28,6 +28,7 @@ $router->add('admin/profile', ['controller' => 'auth', 'action' => 'profile']);
 // Home routes
 $router->add('', ['controller' => 'home', 'action' => 'index']);
 $router->add('restaurante/{slug}', ['controller' => 'home', 'action' => 'restaurant']);
+$router->add('terminos', ['controller' => 'home', 'action' => 'terms']);
 
 // Client booking routes
 $router->add('reservar', ['controller' => 'booking', 'action' => 'index']);
