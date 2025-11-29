@@ -179,6 +179,18 @@ class BookingController extends Controller {
         $reservationId = $this->reservationModel->createReservation($data);
         $reservation = $this->reservationModel->find($reservationId);
         
+        // Send confirmation email with QR code
+        try {
+            $fullReservation = $this->reservationModel->findByCode($reservation['confirmation_code']);
+            if ($fullReservation) {
+                $notificationService = new ReservationNotificationService();
+                $notificationService->sendConfirmation($fullReservation);
+            }
+        } catch (Exception $e) {
+            // Log error but don't block the reservation
+            error_log('Error sending confirmation email: ' . $e->getMessage());
+        }
+        
         // Redirigir a confirmación
         $this->redirect('reservar/confirmacion/' . $reservation['confirmation_code']);
     }

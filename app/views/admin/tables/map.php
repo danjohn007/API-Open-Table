@@ -38,7 +38,24 @@
     </div>
 </div>
 
-<!-- Mapa de mesas por área -->
+<?php 
+// Group tables by area
+$tablesByArea = [];
+$noAreaTables = [];
+foreach ($occupancy as $table) {
+    $areaName = $table['area_name'] ?? null;
+    if ($areaName) {
+        if (!isset($tablesByArea[$areaName])) {
+            $tablesByArea[$areaName] = [];
+        }
+        $tablesByArea[$areaName][] = $table;
+    } else {
+        $noAreaTables[] = $table;
+    }
+}
+?>
+
+<!-- Mesas por área -->
 <?php foreach ($areas as $area): ?>
 <div class="bg-white rounded-xl shadow-sm mb-6">
     <div class="p-4 border-b border-gray-200">
@@ -55,36 +72,42 @@
     <div class="p-6">
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
             <?php 
-            $areaTables = array_filter($occupancy, function($t) use ($area) { 
-                return ($t['area_id'] ?? null) == $area['id']; 
-            });
-            foreach ($areaTables as $table): 
+            $areaTables = $tablesByArea[$area['name']] ?? [];
+            // Remove duplicates by table_number
+            $uniqueTables = [];
+            foreach ($areaTables as $table) {
+                if (!isset($uniqueTables[$table['table_number']])) {
+                    $uniqueTables[$table['table_number']] = $table;
+                } elseif (!empty($table['reservation_id'])) {
+                    // Keep the one with reservation
+                    $uniqueTables[$table['table_number']] = $table;
+                }
+            }
+            
+            foreach ($uniqueTables as $table): 
                 $statusClass = 'bg-green-500';
                 $statusText = 'Disponible';
-                if (isset($table['status'])) {
-                    switch ($table['status']) {
-                        case 'reserved':
-                            $statusClass = 'bg-blue-500';
-                            $statusText = 'Reservada';
-                            break;
-                        case 'seated':
-                            $statusClass = 'bg-purple-500';
-                            $statusText = 'Ocupada';
-                            break;
-                        case 'blocked':
-                            $statusClass = 'bg-gray-400';
-                            $statusText = 'Bloqueada';
-                            break;
+                $borderClass = 'border-green-200 bg-green-50';
+                
+                if (!empty($table['reservation_id'])) {
+                    if ($table['status'] === 'seated') {
+                        $statusClass = 'bg-purple-500';
+                        $statusText = 'Ocupada';
+                        $borderClass = 'border-purple-200 bg-purple-50';
+                    } else {
+                        $statusClass = 'bg-blue-500';
+                        $statusText = 'Reservada';
+                        $borderClass = 'border-blue-200 bg-blue-50';
                     }
                 }
             ?>
-            <div class="relative p-4 rounded-xl border-2 <?= $statusClass === 'bg-green-500' ? 'border-green-200 bg-green-50' : ($statusClass === 'bg-blue-500' ? 'border-blue-200 bg-blue-50' : ($statusClass === 'bg-purple-500' ? 'border-purple-200 bg-purple-50' : 'border-gray-200 bg-gray-50')) ?> text-center cursor-pointer hover:shadow-md transition-shadow"
+            <div class="relative p-4 rounded-xl border-2 <?= $borderClass ?> text-center cursor-pointer hover:shadow-md transition-shadow"
                  title="<?= $statusText ?>">
                 <div class="absolute top-2 right-2 w-3 h-3 rounded-full <?= $statusClass ?>"></div>
                 <div class="text-lg font-bold text-gray-800"><?= htmlspecialchars($table['table_number']) ?></div>
                 <div class="text-sm text-gray-500"><?= $table['capacity'] ?> pers.</div>
-                <?php if (isset($table['reservation_time'])): ?>
-                <div class="text-xs text-gray-400 mt-1"><?= $table['reservation_time'] ?></div>
+                <?php if (!empty($table['reservation_time'])): ?>
+                <div class="text-xs text-gray-400 mt-1"><?= substr($table['reservation_time'], 0, 5) ?></div>
                 <?php endif; ?>
             </div>
             <?php endforeach; ?>
@@ -98,11 +121,16 @@
 <?php endforeach; ?>
 
 <!-- Mesas sin área -->
+<?php if (!empty($noAreaTables)): ?>
 <?php 
-$noAreaTables = array_filter($occupancy, function($t) { 
-    return empty($t['area_id']); 
-});
-if (!empty($noAreaTables)): 
+$uniqueNoArea = [];
+foreach ($noAreaTables as $table) {
+    if (!isset($uniqueNoArea[$table['table_number']])) {
+        $uniqueNoArea[$table['table_number']] = $table;
+    } elseif (!empty($table['reservation_id'])) {
+        $uniqueNoArea[$table['table_number']] = $table;
+    }
+}
 ?>
 <div class="bg-white rounded-xl shadow-sm mb-6">
     <div class="p-4 border-b border-gray-200">
@@ -110,17 +138,19 @@ if (!empty($noAreaTables)):
     </div>
     <div class="p-6">
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            <?php foreach ($noAreaTables as $table): 
+            <?php foreach ($uniqueNoArea as $table): 
                 $statusClass = 'bg-green-500';
-                if (isset($table['status'])) {
-                    switch ($table['status']) {
-                        case 'reserved': $statusClass = 'bg-blue-500'; break;
-                        case 'seated': $statusClass = 'bg-purple-500'; break;
-                        case 'blocked': $statusClass = 'bg-gray-400'; break;
+                $borderClass = 'border-gray-200 bg-gray-50';
+                
+                if (!empty($table['reservation_id'])) {
+                    if ($table['status'] === 'seated') {
+                        $statusClass = 'bg-purple-500';
+                    } else {
+                        $statusClass = 'bg-blue-500';
                     }
                 }
             ?>
-            <div class="relative p-4 rounded-xl border-2 border-gray-200 bg-gray-50 text-center cursor-pointer hover:shadow-md transition-shadow">
+            <div class="relative p-4 rounded-xl border-2 <?= $borderClass ?> text-center cursor-pointer hover:shadow-md transition-shadow">
                 <div class="absolute top-2 right-2 w-3 h-3 rounded-full <?= $statusClass ?>"></div>
                 <div class="text-lg font-bold text-gray-800"><?= htmlspecialchars($table['table_number']) ?></div>
                 <div class="text-sm text-gray-500"><?= $table['capacity'] ?> pers.</div>

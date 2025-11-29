@@ -192,13 +192,38 @@ class SettingsController extends Controller {
         
         $email = $this->getPost('email');
         
-        // Aquí se implementaría el envío de correo de prueba
-        // Por ahora solo simulamos
+        if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $this->json(['success' => false, 'message' => 'Correo electrónico inválido']);
+            return;
+        }
         
-        $this->json([
-            'success' => true,
-            'message' => 'Correo de prueba enviado a ' . $email
-        ]);
+        try {
+            $emailService = new EmailService();
+            
+            if (!$emailService->isConfigured()) {
+                $this->json(['success' => false, 'message' => 'La configuración de correo no está completa. Por favor guarde la configuración primero.']);
+                return;
+            }
+            
+            $result = $emailService->sendTestEmail($email);
+            
+            if ($result) {
+                $this->json([
+                    'success' => true,
+                    'message' => 'Correo de prueba enviado exitosamente a ' . $email
+                ]);
+            } else {
+                $this->json([
+                    'success' => false,
+                    'message' => 'No se pudo enviar el correo de prueba. Verifique la configuración SMTP.'
+                ]);
+            }
+        } catch (Exception $e) {
+            $this->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ]);
+        }
     }
     
     /**
