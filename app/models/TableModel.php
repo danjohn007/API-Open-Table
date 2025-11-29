@@ -29,35 +29,45 @@ class TableModel extends Model {
                 LEFT JOIN restaurant_areas ra ON t.area_id = ra.id 
                 WHERE t.restaurant_id = :restaurant_id 
                 AND t.is_active = 1 
-                AND t.capacity >= :party_size
-                AND t.min_capacity <= :party_size
+                AND t.capacity >= :party_size_min
+                AND t.min_capacity <= :party_size_max
                 AND t.id NOT IN (
                     SELECT table_id FROM reservations 
                     WHERE table_id IS NOT NULL
-                    AND reservation_date = :date 
+                    AND reservation_date = :res_date 
                     AND status NOT IN ('cancelled', 'no_show', 'completed')
                     AND (
-                        (reservation_time <= :time AND ADDTIME(reservation_time, SEC_TO_TIME(duration_minutes * 60)) > :time)
-                        OR (reservation_time < :end_time AND ADDTIME(reservation_time, SEC_TO_TIME(duration_minutes * 60)) >= :end_time)
-                        OR (reservation_time >= :time AND ADDTIME(reservation_time, SEC_TO_TIME(duration_minutes * 60)) <= :end_time)
+                        (reservation_time <= :time1 AND ADDTIME(reservation_time, SEC_TO_TIME(duration_minutes * 60)) > :time2)
+                        OR (reservation_time < :end_time1 AND ADDTIME(reservation_time, SEC_TO_TIME(duration_minutes * 60)) >= :end_time2)
+                        OR (reservation_time >= :time3 AND ADDTIME(reservation_time, SEC_TO_TIME(duration_minutes * 60)) <= :end_time3)
                     )
                 )
                 AND t.id NOT IN (
                     SELECT table_id FROM table_blocks 
-                    WHERE block_date = :date 
+                    WHERE block_date = :block_date 
                     AND (
-                        (start_time <= :time AND end_time > :time)
-                        OR (start_time < :end_time AND end_time >= :end_time)
+                        (start_time <= :time4 AND end_time > :time5)
+                        OR (start_time < :end_time4 AND end_time >= :end_time5)
                     )
                 )
                 ORDER BY t.capacity ASC, ra.display_order, t.table_number";
         
         return $this->db->fetchAll($sql, [
             'restaurant_id' => $restaurantId,
-            'party_size' => $partySize,
-            'date' => $date,
-            'time' => $time,
-            'end_time' => $endTime
+            'party_size_min' => $partySize,
+            'party_size_max' => $partySize,
+            'res_date' => $date,
+            'time1' => $time,
+            'time2' => $time,
+            'time3' => $time,
+            'time4' => $time,
+            'time5' => $time,
+            'end_time1' => $endTime,
+            'end_time2' => $endTime,
+            'end_time3' => $endTime,
+            'end_time4' => $endTime,
+            'end_time5' => $endTime,
+            'block_date' => $date
         ]);
     }
     
@@ -72,16 +82,20 @@ class TableModel extends Model {
                 AND reservation_date = :date 
                 AND status NOT IN ('cancelled', 'no_show', 'completed')
                 AND (
-                    (reservation_time <= :time AND ADDTIME(reservation_time, SEC_TO_TIME(duration_minutes * 60)) > :time)
-                    OR (reservation_time < :end_time AND ADDTIME(reservation_time, SEC_TO_TIME(duration_minutes * 60)) >= :end_time)
-                    OR (reservation_time >= :time AND ADDTIME(reservation_time, SEC_TO_TIME(duration_minutes * 60)) <= :end_time)
+                    (reservation_time <= :time1 AND ADDTIME(reservation_time, SEC_TO_TIME(duration_minutes * 60)) > :time2)
+                    OR (reservation_time < :end_time1 AND ADDTIME(reservation_time, SEC_TO_TIME(duration_minutes * 60)) >= :end_time2)
+                    OR (reservation_time >= :time3 AND ADDTIME(reservation_time, SEC_TO_TIME(duration_minutes * 60)) <= :end_time3)
                 )";
         
         $params = [
             'table_id' => $tableId,
             'date' => $date,
-            'time' => $time,
-            'end_time' => $endTime
+            'time1' => $time,
+            'time2' => $time,
+            'time3' => $time,
+            'end_time1' => $endTime,
+            'end_time2' => $endTime,
+            'end_time3' => $endTime
         ];
         
         if ($excludeReservationId) {
@@ -100,15 +114,17 @@ class TableModel extends Model {
                 WHERE table_id = :table_id 
                 AND block_date = :date 
                 AND (
-                    (start_time <= :time AND end_time > :time)
-                    OR (start_time < :end_time AND end_time >= :end_time)
+                    (start_time <= :time1 AND end_time > :time2)
+                    OR (start_time < :end_time1 AND end_time >= :end_time2)
                 )";
         
         $result = $this->db->fetch($sql, [
             'table_id' => $tableId,
             'date' => $date,
-            'time' => $time,
-            'end_time' => $endTime
+            'time1' => $time,
+            'time2' => $time,
+            'end_time1' => $endTime,
+            'end_time2' => $endTime
         ]);
         
         return $result['count'] == 0;

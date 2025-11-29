@@ -23,6 +23,7 @@ $router->add('login', ['controller' => 'auth', 'action' => 'login']);
 $router->add('logout', ['controller' => 'auth', 'action' => 'logout']);
 $router->add('register', ['controller' => 'auth', 'action' => 'register']);
 $router->add('forgot-password', ['controller' => 'auth', 'action' => 'forgot-password']);
+$router->add('admin/profile', ['controller' => 'auth', 'action' => 'profile']);
 
 // Home routes
 $router->add('', ['controller' => 'home', 'action' => 'index']);

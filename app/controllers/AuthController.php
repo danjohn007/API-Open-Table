@@ -114,4 +114,65 @@ class AuthController extends Controller {
         
         $this->render('auth/forgot-password', ['error' => $error, 'success' => $success], 'auth');
     }
+    
+    /**
+     * Perfil del usuario
+     */
+    public function profile() {
+        $this->requireAuth();
+        
+        $user = $this->userModel->find($_SESSION['user_id']);
+        
+        if (!$user) {
+            $this->redirect('login');
+        }
+        
+        $error = null;
+        $success = null;
+        
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $data = [
+                'first_name' => $this->getPost('first_name'),
+                'last_name' => $this->getPost('last_name'),
+                'email' => $this->getPost('email'),
+                'phone' => $this->getPost('phone')
+            ];
+            
+            // Validate email format
+            if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+                $error = 'El formato del correo electrónico no es válido';
+            } elseif ($data['email'] !== $user['email'] && $this->userModel->emailExists($data['email'])) {
+                // Check if email is being changed and if it already exists
+                $error = 'El correo electrónico ya está registrado';
+            } else {
+                // Update password if provided
+                $newPassword = $this->getPost('new_password');
+                if (!empty($newPassword)) {
+                    if (strlen($newPassword) < 6) {
+                        $error = 'La contraseña debe tener al menos 6 caracteres';
+                    } else {
+                        $data['password'] = password_hash($newPassword, PASSWORD_DEFAULT);
+                    }
+                }
+                
+                if (!$error) {
+                    $result = $this->userModel->update($_SESSION['user_id'], $data);
+                    if ($result) {
+                        $_SESSION['user_name'] = $data['first_name'] . ' ' . $data['last_name'];
+                        $_SESSION['user_email'] = $data['email'];
+                        $success = 'Perfil actualizado exitosamente';
+                        $user = $this->userModel->find($_SESSION['user_id']);
+                    } else {
+                        $error = 'Error al actualizar el perfil';
+                    }
+                }
+            }
+        }
+        
+        $this->render('admin/profile', [
+            'user' => $user,
+            'error' => $error,
+            'success' => $success
+        ], 'admin');
+    }
 }
