@@ -97,6 +97,32 @@ $router->add('admin/settings/test-opentable', ['controller' => 'settings', 'acti
 // Obtener la URL actual
 $url = $_GET['url'] ?? '';
 
+// Eliminar la barra diagonal final si existe
+$url = rtrim($url, '/');
+
+// Si el URL viene desde REQUEST_URI (sin mod_rewrite), extraer la ruta correcta
+if (empty($url) && isset($_SERVER['REQUEST_URI'])) {
+    $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+    $scriptName = $_SERVER['SCRIPT_NAME'];
+    $scriptDir = dirname($scriptName);
+    
+    // Eliminar el directorio base de la URI
+    if ($scriptDir !== '/' && $scriptDir !== '\\') {
+        $url = substr($requestUri, strlen($scriptDir));
+    } else {
+        $url = $requestUri;
+    }
+    
+    // Eliminar barras diagonales del inicio y final
+    $url = trim($url, '/');
+    
+    // Eliminar index.php del inicio si existe
+    if (strpos($url, 'index.php') === 0) {
+        $url = substr($url, 9);
+        $url = ltrim($url, '/');
+    }
+}
+
 // Despachar la ruta
 try {
     $router->dispatch($url);

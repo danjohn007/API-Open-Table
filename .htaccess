@@ -1,7 +1,8 @@
 RewriteEngine On
 
-# Establecer base del directorio (automático)
-RewriteBase /
+# Detectar automáticamente el directorio base
+RewriteCond %{REQUEST_URI}::$1 ^(/.+)/(.*)::\2$
+RewriteRule ^(.*) - [E=BASE:%1]
 
 # Si es un archivo o directorio existente, no reescribir
 RewriteCond %{REQUEST_FILENAME} !-f
