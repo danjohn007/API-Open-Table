@@ -42,10 +42,12 @@ define('APP_DEBUG', getenv('APP_DEBUG') !== false ? getenv('APP_DEBUG') === 'tru
 // Configuración de zona horaria
 date_default_timezone_set('America/Mexico_City');
 
-// Configuración de sesión
-ini_set('session.cookie_httponly', 1);
-ini_set('session.use_only_cookies', 1);
-ini_set('session.cookie_secure', isset($_SERVER['HTTPS']));
+// Configuración de sesión - solo si no hay una sesión activa
+if (session_status() === PHP_SESSION_NONE) {
+    ini_set('session.cookie_httponly', 1);
+    ini_set('session.use_only_cookies', 1);
+    ini_set('session.cookie_secure', isset($_SERVER['HTTPS']));
+}
 
 // Configuración de OpenTable API
 define('OPENTABLE_API_URL', 'https://platform.opentable.com');
