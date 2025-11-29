@@ -91,6 +91,7 @@ $router->add('admin/settings/mail', ['controller' => 'settings', 'action' => 'ma
 $router->add('admin/settings/payment', ['controller' => 'settings', 'action' => 'payment']);
 $router->add('admin/settings/opentable', ['controller' => 'settings', 'action' => 'opentable']);
 $router->add('admin/settings/integrations', ['controller' => 'settings', 'action' => 'integrations']);
+$router->add('admin/settings/policies', ['controller' => 'settings', 'action' => 'policies']);
 $router->add('admin/settings/users', ['controller' => 'settings', 'action' => 'users']);
 $router->add('admin/settings/test-email', ['controller' => 'settings', 'action' => 'test-email']);
 $router->add('admin/settings/test-opentable', ['controller' => 'settings', 'action' => 'test-opentable']);

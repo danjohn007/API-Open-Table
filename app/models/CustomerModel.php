@@ -69,15 +69,21 @@ class CustomerModel extends Model {
      * Buscar clientes
      */
     public function search($query) {
+        $searchTerm = "%{$query}%";
         $sql = "SELECT * FROM {$this->table} 
-                WHERE first_name LIKE :query 
-                OR last_name LIKE :query 
-                OR email LIKE :query 
-                OR phone LIKE :query
+                WHERE first_name LIKE :query1 
+                OR last_name LIKE :query2 
+                OR email LIKE :query3 
+                OR phone LIKE :query4
                 ORDER BY first_name, last_name
                 LIMIT 20";
         
-        return $this->db->fetchAll($sql, ['query' => "%{$query}%"]);
+        return $this->db->fetchAll($sql, [
+            'query1' => $searchTerm,
+            'query2' => $searchTerm,
+            'query3' => $searchTerm,
+            'query4' => $searchTerm
+        ]);
     }
     
     /**

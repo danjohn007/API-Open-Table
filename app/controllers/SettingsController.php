@@ -105,6 +105,35 @@ class SettingsController extends Controller {
     }
     
     /**
+     * Políticas del sitio (Términos y Condiciones)
+     */
+    public function policies() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $postData = $this->getPost();
+            unset($postData['csrf_token']);
+            
+            foreach ($postData as $key => $value) {
+                $setting = $this->settingModel->findBy('setting_key', $key);
+                if ($setting) {
+                    $this->settingModel->set($key, $value, $setting['setting_type'], $setting['setting_group']);
+                } else {
+                    // Create new setting if it doesn't exist
+                    $this->settingModel->set($key, $value, 'text', 'policies');
+                }
+            }
+            
+            $this->setFlash('success', 'Políticas guardadas exitosamente');
+            $this->redirect('admin/settings/policies');
+        }
+        
+        $settings = $this->settingModel->getAllAsArray();
+        
+        $this->render('admin/settings/policies', [
+            'settings' => $settings
+        ], 'admin');
+    }
+    
+    /**
      * Guardar configuraciones
      */
     private function save($group) {

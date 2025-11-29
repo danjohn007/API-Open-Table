@@ -77,17 +77,37 @@ class AuthController extends Controller {
                 'role' => 'customer'
             ];
             
+            // Validate captcha
+            $captcha = $this->getPost('captcha');
+            $captchaAnswer = $_SESSION['captcha_answer'] ?? null;
+            
+            // Validate terms acceptance
+            $acceptTerms = $this->getPost('accept_terms');
+            
+            // Validate phone (10 digits)
+            $phone = preg_replace('/[^0-9]/', '', $data['phone']);
+            
             // Validaciones
-            if ($this->userModel->usernameExists($data['username'])) {
+            if ($captchaAnswer === null || intval($captcha) !== intval($captchaAnswer)) {
+                $error = 'La verificación es incorrecta. Por favor intenta de nuevo.';
+            } elseif (!$acceptTerms) {
+                $error = 'Debes aceptar los Términos y Condiciones para continuar';
+            } elseif (strlen($phone) !== 10) {
+                $error = 'El teléfono debe tener exactamente 10 dígitos';
+            } elseif ($this->userModel->usernameExists($data['username'])) {
                 $error = 'El nombre de usuario ya existe';
             } elseif ($this->userModel->emailExists($data['email'])) {
                 $error = 'El correo electrónico ya está registrado';
             } elseif (strlen($data['password']) < 6) {
                 $error = 'La contraseña debe tener al menos 6 caracteres';
             } else {
+                $data['phone'] = $phone;
                 $this->userModel->createUser($data);
                 $success = 'Cuenta creada exitosamente. Ahora puedes iniciar sesión.';
             }
+            
+            // Clear captcha answer
+            unset($_SESSION['captcha_answer']);
         }
         
         $this->render('auth/register', ['error' => $error, 'success' => $success], 'auth');
@@ -145,6 +165,14 @@ class AuthController extends Controller {
                 // Check if email is being changed and if it already exists
                 $error = 'El correo electrónico ya está registrado';
             } else {
+                // Handle profile image upload
+                if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] === 0) {
+                    $avatarPath = $this->uploadProfileImage($_FILES['avatar']);
+                    if ($avatarPath) {
+                        $data['avatar'] = $avatarPath;
+                    }
+                }
+                
                 // Update password if provided
                 $newPassword = $this->getPost('new_password');
                 if (!empty($newPassword)) {
@@ -160,6 +188,9 @@ class AuthController extends Controller {
                     if ($result) {
                         $_SESSION['user_name'] = $data['first_name'] . ' ' . $data['last_name'];
                         $_SESSION['user_email'] = $data['email'];
+                        if (isset($data['avatar'])) {
+                            $_SESSION['user_avatar'] = $data['avatar'];
+                        }
                         $success = 'Perfil actualizado exitosamente';
                         $user = $this->userModel->find($_SESSION['user_id']);
                     } else {
@@ -174,5 +205,31 @@ class AuthController extends Controller {
             'error' => $error,
             'success' => $success
         ], 'admin');
+    }
+    
+    /**
+     * Upload profile image
+     */
+    private function uploadProfileImage($file) {
+        $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        
+        if (!in_array($file['type'], $allowedTypes)) {
+            return null;
+        }
+        
+        $targetDir = UPLOADS_PATH . '/avatars';
+        if (!is_dir($targetDir)) {
+            mkdir($targetDir, 0755, true);
+        }
+        
+        $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+        $filename = 'avatar_' . $_SESSION['user_id'] . '_' . time() . '.' . $extension;
+        $targetPath = $targetDir . '/' . $filename;
+        
+        if (move_uploaded_file($file['tmp_name'], $targetPath)) {
+            return 'uploads/avatars/' . $filename;
+        }
+        
+        return null;
     }
 }
