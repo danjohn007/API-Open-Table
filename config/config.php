@@ -28,9 +28,9 @@ define('UPLOADS_PATH', PUBLIC_PATH . '/uploads');
 
 // Configuración de la base de datos
 define('DB_HOST', 'localhost');
-define('DB_NAME', 'opentable_reservations');
-define('DB_USER', 'root');
-define('DB_PASS', '');
+define('DB_NAME', 'aiderese_opentable');
+define('DB_USER', 'aiderese_opentable');
+define('DB_PASS', 'Danjohn007!');
 define('DB_CHARSET', 'utf8mb4');
 
 // Configuración de la aplicación
