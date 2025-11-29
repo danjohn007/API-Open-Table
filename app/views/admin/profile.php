@@ -20,7 +20,36 @@
 <?php endif; ?>
 
 <div class="bg-white rounded-xl shadow-sm">
-    <form method="POST" action="<?= BASE_URL ?>/admin/profile" class="p-6 space-y-6">
+    <form method="POST" action="<?= BASE_URL ?>/admin/profile" enctype="multipart/form-data" class="p-6 space-y-6">
+        <!-- Imagen de perfil -->
+        <div class="border-b pb-6">
+            <h3 class="text-lg font-medium text-gray-800 mb-4">Imagen de Perfil</h3>
+            <div class="flex items-center space-x-6">
+                <div class="flex-shrink-0">
+                    <?php if (!empty($user['avatar'])): ?>
+                    <img src="<?= BASE_URL ?>/public/<?= htmlspecialchars($user['avatar']) ?>" alt="Avatar" 
+                         class="w-24 h-24 rounded-full object-cover border-4 border-gray-200">
+                    <?php else: ?>
+                    <div class="w-24 h-24 rounded-full bg-primary flex items-center justify-center text-white text-3xl font-bold border-4 border-gray-200">
+                        <?= strtoupper(substr($user['first_name'] ?? 'U', 0, 1)) ?>
+                    </div>
+                    <?php endif; ?>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Cambiar imagen de perfil</label>
+                    <input type="file" name="avatar" accept="image/jpeg,image/png,image/gif,image/webp"
+                           class="block w-full text-sm text-gray-500
+                                  file:mr-4 file:py-2 file:px-4
+                                  file:rounded-lg file:border-0
+                                  file:text-sm file:font-medium
+                                  file:bg-primary file:text-white
+                                  hover:file:bg-secondary
+                                  cursor-pointer">
+                    <p class="text-xs text-gray-500 mt-1">JPG, PNG, GIF o WebP. Máximo 2MB.</p>
+                </div>
+            </div>
+        </div>
+        
         <!-- Información personal -->
         <div class="border-b pb-6">
             <h3 class="text-lg font-medium text-gray-800 mb-4">Información Personal</h3>
@@ -41,9 +70,12 @@
                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono/WhatsApp</label>
                     <input type="tel" name="phone" value="<?= htmlspecialchars($user['phone'] ?? '') ?>"
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+                           pattern="[0-9]{10}" maxlength="10" placeholder="10 dígitos"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                           oninput="this.value = this.value.replace(/[^0-9]/g, '').substring(0, 10)">
+                    <p class="text-xs text-gray-500 mt-1">Ingrese exactamente 10 dígitos</p>
                 </div>
             </div>
         </div>

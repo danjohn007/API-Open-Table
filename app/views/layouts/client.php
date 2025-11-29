@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= isset($pageTitle) ? $pageTitle . ' - ' : '' ?>Sistema de Reservaciones</title>
     
+    <?php
+    // Load settings for dynamic styling
+    $settingModel = new SettingModel();
+    $siteSettings = $settingModel->getAllAsArray();
+    $primaryColor = $siteSettings['primary_color'] ?? '#2563eb';
+    $secondaryColor = $siteSettings['secondary_color'] ?? '#1e40af';
+    $accentColor = $siteSettings['accent_color'] ?? '#3b82f6';
+    $siteLogo = $siteSettings['site_logo'] ?? '';
+    ?>
+    
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -12,9 +22,9 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: '#2563eb',
-                        secondary: '#1e40af',
-                        accent: '#3b82f6'
+                        primary: '<?= htmlspecialchars($primaryColor) ?>',
+                        secondary: '<?= htmlspecialchars($secondaryColor) ?>',
+                        accent: '<?= htmlspecialchars($accentColor) ?>'
                     }
                 }
             }
@@ -26,6 +36,10 @@
     
     <style>
         [x-cloak] { display: none !important; }
+        .btn-primary { background-color: <?= htmlspecialchars($primaryColor) ?>; }
+        .btn-primary:hover { background-color: <?= htmlspecialchars($secondaryColor) ?>; }
+        .btn-secondary { background-color: <?= htmlspecialchars($secondaryColor) ?>; }
+        .btn-accent { background-color: <?= htmlspecialchars($accentColor) ?>; }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -35,9 +49,13 @@
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
                     <a href="<?= BASE_URL ?>" class="flex items-center space-x-2">
+                        <?php if (!empty($siteLogo)): ?>
+                        <img src="<?= BASE_URL ?>/public/<?= htmlspecialchars($siteLogo) ?>" alt="Logo" class="h-8 w-auto">
+                        <?php else: ?>
                         <svg class="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
                         </svg>
+                        <?php endif; ?>
                         <span class="text-xl font-bold text-gray-800">Reservaciones</span>
                     </a>
                 </div>
@@ -128,6 +146,7 @@
             </div>
             <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400 text-sm">
                 <p>&copy; <?= date('Y') ?> Sistema de Reservaciones. Todos los derechos reservados.</p>
+                <p class="mt-2">Solución desarrollada por <a href="https://www.impactosdigitales.com" target="_blank" rel="noopener noreferrer" class="text-white hover:text-primary font-medium">ID</a></p>
             </div>
         </div>
     </footer>

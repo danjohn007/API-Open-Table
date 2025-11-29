@@ -126,6 +126,18 @@ class ReservationsController extends Controller {
         
         $id = $this->reservationModel->createReservation($data);
         
+        // Send confirmation email with QR code
+        try {
+            $reservation = $this->reservationModel->findByCode($data['confirmation_code'] ?? $this->reservationModel->find($id)['confirmation_code']);
+            if ($reservation) {
+                $notificationService = new ReservationNotificationService();
+                $notificationService->sendConfirmation($reservation);
+            }
+        } catch (Exception $e) {
+            // Log error but don't block the reservation
+            error_log('Error sending confirmation email: ' . $e->getMessage());
+        }
+        
         $this->setFlash('success', 'Reservación creada exitosamente');
         $this->redirect('admin/reservations/' . $id);
     }

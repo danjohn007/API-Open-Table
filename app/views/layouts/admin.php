@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= isset($pageTitle) ? $pageTitle . ' - ' : '' ?>Panel de Administración</title>
     
+    <?php
+    // Load settings for dynamic styling
+    $settingModel = new SettingModel();
+    $siteSettings = $settingModel->getAllAsArray();
+    $primaryColor = $siteSettings['primary_color'] ?? '#2563eb';
+    $secondaryColor = $siteSettings['secondary_color'] ?? '#1e40af';
+    $accentColor = $siteSettings['accent_color'] ?? '#3b82f6';
+    $siteLogo = $siteSettings['site_logo'] ?? '';
+    ?>
+    
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -12,9 +22,9 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: '#2563eb',
-                        secondary: '#1e40af',
-                        accent: '#3b82f6'
+                        primary: '<?= htmlspecialchars($primaryColor) ?>',
+                        secondary: '<?= htmlspecialchars($secondaryColor) ?>',
+                        accent: '<?= htmlspecialchars($accentColor) ?>'
                     }
                 }
             }
@@ -35,7 +45,12 @@
     <style>
         [x-cloak] { display: none !important; }
         .sidebar-link { @apply flex items-center px-4 py-2.5 text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-900 transition-colors; }
-        .sidebar-link.active { @apply bg-primary text-white hover:bg-primary hover:text-white; }
+        .sidebar-link.active { background-color: <?= htmlspecialchars($primaryColor) ?>; color: white; }
+        .sidebar-link.active:hover { background-color: <?= htmlspecialchars($primaryColor) ?>; color: white; }
+        .btn-primary { background-color: <?= htmlspecialchars($primaryColor) ?>; }
+        .btn-primary:hover { background-color: <?= htmlspecialchars($secondaryColor) ?>; }
+        .btn-secondary { background-color: <?= htmlspecialchars($secondaryColor) ?>; }
+        .btn-accent { background-color: <?= htmlspecialchars($accentColor) ?>; }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -46,9 +61,13 @@
                 <!-- Logo -->
                 <div class="flex items-center justify-between h-16 px-4 border-b border-gray-200">
                     <a href="<?= BASE_URL ?>/admin/dashboard" class="flex items-center space-x-2">
+                        <?php if (!empty($siteLogo)): ?>
+                        <img src="<?= BASE_URL ?>/public/<?= htmlspecialchars($siteLogo) ?>" alt="Logo" class="h-8 w-auto">
+                        <?php else: ?>
                         <svg class="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
                         </svg>
+                        <?php endif; ?>
                         <span x-show="sidebarOpen" class="text-lg font-bold text-gray-800">Reservaciones</span>
                     </a>
                     <button @click="sidebarOpen = !sidebarOpen" class="p-1 rounded hover:bg-gray-100">
@@ -142,9 +161,13 @@
             <!-- Same content as desktop sidebar -->
             <div class="flex items-center justify-between h-16 px-4 border-b border-gray-200">
                 <a href="<?= BASE_URL ?>/admin/dashboard" class="flex items-center space-x-2">
+                    <?php if (!empty($siteLogo)): ?>
+                    <img src="<?= BASE_URL ?>/public/<?= htmlspecialchars($siteLogo) ?>" alt="Logo" class="h-8 w-auto">
+                    <?php else: ?>
                     <svg class="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
                     </svg>
+                    <?php endif; ?>
                     <span class="text-lg font-bold text-gray-800">Reservaciones</span>
                 </a>
                 <button @click="mobileMenuOpen = false" class="p-1 rounded hover:bg-gray-100">
@@ -219,9 +242,14 @@
             <?php endif; ?>
             
             <!-- Page content -->
-            <main class="p-4 lg:p-6">
+            <main class="p-4 lg:p-6 pb-16">
                 <?= $content ?>
             </main>
+            
+            <!-- Footer -->
+            <footer class="fixed bottom-0 right-0 left-0 lg:left-64 bg-white border-t border-gray-200 py-3 px-6 text-center text-sm text-gray-500">
+                Solución desarrollada por <a href="https://www.impactosdigitales.com" target="_blank" rel="noopener noreferrer" class="text-primary hover:text-secondary font-medium">ID</a>
+            </footer>
         </div>
     </div>
     

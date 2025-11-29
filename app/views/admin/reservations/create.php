@@ -85,9 +85,12 @@
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono *</label>
-                    <input type="tel" name="customer_phone" required 
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono/WhatsApp *</label>
+                    <input type="tel" name="customer_phone" required pattern="[0-9]{10}" maxlength="10"
+                           placeholder="10 dígitos"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                           oninput="this.value = this.value.replace(/[^0-9]/g, '').substring(0, 10)">
+                    <p class="text-xs text-gray-500 mt-1">Ingrese exactamente 10 dígitos</p>
                 </div>
             </div>
         </div>
