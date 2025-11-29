@@ -16,7 +16,7 @@
                 </span>
             </div>
             <div class="text-sm text-gray-600 space-y-1">
-                <p><strong>Restaurante:</strong> <?= htmlspecialchars($restaurant['name']) ?></p>
+                <p><strong>Restaurante:</strong> <?= htmlspecialchars($reservation['restaurant_name']) ?></p>
                 <p><strong>Fecha:</strong> <?= date('l, d F Y', strtotime($reservation['reservation_date'])) ?></p>
                 <p><strong>Hora:</strong> <?= date('H:i', strtotime($reservation['reservation_time'])) ?> hrs</p>
                 <p><strong>Personas:</strong> <?= $reservation['party_size'] ?></p>

@@ -118,7 +118,7 @@ if (empty($url) && isset($_SERVER['REQUEST_URI'])) {
     
     // Eliminar index.php del inicio si existe
     if (strpos($url, 'index.php') === 0) {
-        $url = substr($url, 9);
+        $url = substr($url, strlen('index.php'));
         $url = ltrim($url, '/');
     }
 }
